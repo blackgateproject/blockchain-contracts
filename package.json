@@ -2,6 +2,11 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@nomicfoundation/hardhat-toolbox-viem": "^3.0.0",
+    "@types/multicast-dns": "^7.2.4",
+    "@types/retry": "^0.12.5",
+    "@types/sinon": "^17.0.3",
+    "@types/sinonjs__fake-timers": "^8.1.5",
+    "@types/ws": "^8.5.12",
     "hardhat": "^2.22.13"
   },
   "name": "blockchain",
@@ -84,6 +89,7 @@
     "hash-base": "^3.1.0",
     "hash.js": "^1.1.7",
     "he": "^1.2.0",
+    "helia": "^5.0.0",
     "hmac-drbg": "^1.0.1",
     "http-errors": "^2.0.0",
     "https-proxy-agent": "^5.0.1",
