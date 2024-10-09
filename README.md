@@ -16,3 +16,13 @@ npm install
 npx hardhat compile
 npx hardhat test
 ```
+
+
+
+## Dev notes
+
+- Trying to setup Blockchain
+  - Contracts need more research
+  - IPFS is required
+    - Switched from IPFS Client to Helia IPFS
+    - need to add a note that IPFS-Desktop has to be installed as well
