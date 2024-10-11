@@ -49,5 +49,12 @@ npx hardhat test
   - User Identity & Acess Management:
     - FR - 1: System should provide robust idenitty Management, ensure that UD & Identities are securely stored
       - TL;DR: User must be able to create accounts, they must also be able to sign into said accounts
+        - User Roles are just two atm.
+          - User can Access Federated Apps or manage their account creds
+          - Admin can View all active users, edit their details and delete their accounts
 - High
-  - Federation
+  - Support Page.
+    - Not in FR but it must be functional if Critical have been addresed
+- Medium
+  - Decaying Trust Score
+  - Admin revocation roles
