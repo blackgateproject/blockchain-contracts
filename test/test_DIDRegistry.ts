@@ -9,7 +9,6 @@ describe("DIDRegistry", function () {
   before(async () => {
     try {
       accounts = await ethers.getSigners();
-
       const DIDRegistry = await ethers.getContractFactory("DIDRegistry");
       didRegistry = await DIDRegistry.connect(accounts[1]).deploy(); // Deploying as the second account
       await didRegistry.waitForDeployment();
