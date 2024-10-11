@@ -1,10 +1,8 @@
 # Blockchain
 
-This is where the source for BlackGate's Blockchain module resides, there is noticeable overlap with the backend so both frontend's backend and blockchain's backend for now is seperate. 
-
+This is where the source for BlackGate's Blockchain module resides, there is noticeable overlap with the backend so both frontend's backend and blockchain's backend for now is seperate.
 
 Ideally this is what it should be later on, subject to change however
-
 
 # How to run
 
@@ -13,12 +11,10 @@ Ideally this is what it should be later on, subject to change however
 git clone https://github.com/blackgateproject/blockchain.git
 cd blockchain
 npm install
-npx hardhat compile
-npx hardhat test
+npx hardhat compile; npx hardhat test
 ```
 
 ## Dev notes
-
 
 #### Skipping this for now
 
@@ -41,7 +37,6 @@ npx hardhat test
           - ~~ID Commitment is the RSA Accumulator at that stage, that has been converted to a constant-length IDC~~
   - ~~Off-chain (IPFS)~~
     - ~~The VC recieved is stored here first (for schema refer to doc figure 2 on page 5)~~
-
 
 #### TODO
 

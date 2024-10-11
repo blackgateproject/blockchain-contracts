@@ -10,7 +10,7 @@ describe("DIDRegistry", function () {
       accounts = await ethers.getSigners();
 
       const DIDRegistry = await ethers.getContractFactory("DIDRegistry");
-      didRegistry = await DIDRegistry.connect(accounts[1]).deploy(); // No local declaration
+      didRegistry = await DIDRegistry.connect(accounts[1]).deploy(); // Deploying as the second account
       await didRegistry.waitForDeployment();
 
       const didRegistryAddress = await didRegistry.getAddress();
@@ -44,15 +44,23 @@ describe("DIDRegistry", function () {
     // Print the DID
     console.log("[LOG]: Generated DID:", did);
 
-    // Register the DID
-    await didRegistry.registerDID(did, "publicKeyBase58");
+    // Register the DID with a public key
+    const publicKey = [
+      {
+        id: "did:example:123#keys-1",
+        typeKey: "EcdsaSecp256k1VerificationKey2019",
+        publicKeyHex: "0xYourPublicKeyHex", // Replace with actual public key hex
+      },
+    ];
+
+    await didRegistry.registerDID(did, publicKey, []); // No services for now
 
     // Check that the DID is registered
-    const { did: registeredDID, publicKey } = await didRegistry.getDID(
+    const { did: registeredDID, publicKeys } = await didRegistry.getDID(
       accounts[1].address // Use accounts[1] since it is the controller
     );
     expect(registeredDID).to.equal(did);
-    expect(publicKey).to.equal("publicKeyBase58");
+    expect(publicKeys.length).to.be.greaterThan(0);
   });
 
   it("should issue a Verifiable Credential", async function () {
@@ -64,7 +72,9 @@ describe("DIDRegistry", function () {
     await didRegistry.issueVC(
       accounts[1].address, // Use accounts[1] since it is the holder
       credentialHash,
-      issuanceDate
+      issuanceDate,
+      "", // No expiration date for now
+      []
     );
 
     // Verify the VC exists
@@ -88,9 +98,9 @@ describe("DIDRegistry", function () {
       )
     )}`;
 
-    await expect(
-      didRegistry.registerDID(did, "publicKeyBase58")
-    ).to.be.revertedWith("DID already registered");
+    await expect(didRegistry.registerDID(did, [], [])).to.be.revertedWith(
+      "DID already registered"
+    );
   });
 
   it("should not allow unregistered users to get DID", async function () {
