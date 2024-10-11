@@ -42,10 +42,23 @@ describe("Stateless Blockchain-Based Lightweight Identity Management Architectur
   const testClient = createTestClient({
     chain: hardhat,
     transport: http(),
+    mode: 'test',
   });
 
-  before(async function () {
-    ownerAccount = { address: "0x0000000000000000000000000000000000000001" };
+    ownerAccount = {
+      address: "0x0000000000000000000000000000000000000001",
+      signMessage: async () => "0x",
+      signTransaction: async () => "0x",
+      signTypedData: async () => "0x",
+      publicKey: "0x",
+      address: "0x0000000000000000000000000000000000000000", // Replace with actual deployed address
+    addr1Account = {
+      address: "0x0000000000000000000000000000000000000002",
+      signMessage: async () => "0x",
+      signTransaction: async () => "0x",
+      signTypedData: async () => "0x",
+      publicKey: "0x",
+    };
     addr1Account = { address: "0x0000000000000000000000000000000000000002" };
   });
 
@@ -72,11 +85,12 @@ describe("Stateless Blockchain-Based Lightweight Identity Management Architectur
     });
     idTraceContract = getContract({
       address: "DEPLOYED_ADDRESS", // Put the deployed address here
-      abi: IdTrace.abi,
+    const systemOwner = await publicClient.readContract({
+      address: sysSetupContract.address,
+      abi: sysSetupContract.abi,
+      functionName: "systemOwner",
+      args: [],
     });
-    idRecoverContract = getContract({
-      address: "DEPLOYED_ADDRESS", // Put the deployed address here
-      abi: IdRecover.abi,
     });
     ipRevokeContract = getContract({
       address: "DEPLOYED_ADDRESS", // Put the deployed address here
