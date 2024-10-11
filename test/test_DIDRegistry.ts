@@ -4,6 +4,7 @@ import { ethers } from "hardhat";
 describe("DIDRegistry", function () {
   let didRegistry: any;
   let accounts: any[];
+  let issuanceDate: string; // Store issuance date
 
   before(async () => {
     try {
@@ -63,26 +64,51 @@ describe("DIDRegistry", function () {
     expect(publicKeys.length).to.be.greaterThan(0);
   });
 
-  it("should issue a Verifiable Credential", async function () {
-    const credentialHash = ethers.keccak256(
-      ethers.toUtf8Bytes("Credential for John Doe")
-    );
-    const issuanceDate = new Date().toISOString();
+  it("should issue a Verifiable Credential with claims", async function () {
+    const firstName = "John";
+    const lastName = "Doe";
+    const email = "john.doe@example.com";
+    const phoneNumber = "1234567890";
+
+    // Create claims for the Verifiable Credential
+    const claims = [
+      { claimType: "First Name", claimValue: firstName },
+      { claimType: "Last Name", claimValue: lastName },
+      { claimType: "Email", claimValue: email },
+      { claimType: "Phone", claimValue: phoneNumber },
+    ];
+
+    issuanceDate = new Date().toISOString(); // Store issuance date
 
     await didRegistry.issueVC(
       accounts[1].address, // Use accounts[1] since it is the holder
-      credentialHash,
+      "https://www.w3.org/2018/credentials/v1",
+      "VerifiableCredential",
       issuanceDate,
       "", // No expiration date for now
-      []
+      claims,
+      "0xProofSignature" // Replace with actual proof/signature
     );
 
     // Verify the VC exists
     const exists = await didRegistry.verifyVC(
-      credentialHash,
-      accounts[1].address // Use accounts[1] since it is the holder
+      "https://www.w3.org/2018/credentials/v1",
+      accounts[1].address, // Use accounts[1] since it is the holder
+      issuanceDate
     );
     expect(exists).to.be.true;
+
+    // Verify the claims
+    const storedClaims = await didRegistry.getClaims(
+      "https://www.w3.org/2018/credentials/v1",
+      accounts[1].address,
+      issuanceDate
+    );
+    expect(storedClaims.length).to.equal(claims.length);
+    for (let i = 0; i < claims.length; i++) {
+      expect(storedClaims[i].claimType).to.equal(claims[i].claimType);
+      expect(storedClaims[i].claimValue).to.equal(claims[i].claimValue);
+    }
   });
 
   it("should not allow duplicate registrations", async function () {
@@ -113,13 +139,11 @@ describe("DIDRegistry", function () {
   });
 
   it("should verify the Verifiable Credential", async function () {
-    const credentialHash = ethers.keccak256(
-      ethers.toUtf8Bytes("Credential for John Doe")
-    );
-
+    // Use the stored issuance date
     const exists = await didRegistry.verifyVC(
-      credentialHash,
-      accounts[1].address // Use accounts[1] since it is the holder
+      "https://www.w3.org/2018/credentials/v1",
+      accounts[1].address, // Use accounts[1] since it is the holder
+      issuanceDate
     );
     expect(exists).to.be.true;
   });

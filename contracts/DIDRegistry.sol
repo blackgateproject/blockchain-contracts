@@ -30,18 +30,21 @@ contract DIDRegistry {
     }
 
     struct VerifiableCredential {
-        string credentialHash; // Hash representing the VC
-        address issuer; // Address of the issuer
+        string context; // Context of the credential, e.g., W3C VC context
+        string typeVC; // Type of the credential, e.g., "VerifiableCredential"
+        string issuer; // Issuer's DID or address (in string format)
         address holder; // Address of the holder
         string issuanceDate; // Date of issuance
         string expirationDate; // Optional expiration date
+        string proof; // Cryptographic proof (could be a signature)
         bool exists; // Check if VC is issued
     }
 
     // Mappings to store DIDs and VCs
     mapping(address => DIDDocument) public didRegistry; // Maps controller addresses to DID documents
     mapping(bytes32 => VerifiableCredential) public vcRegistry; // Maps VC hashes to Verifiable Credentials
-    mapping(bytes32 => Claim[]) public claimsRegistry; // Maps VC hashes to claims
+    mapping(bytes32 => mapping(uint256 => Claim)) public claimsRegistry; // Maps VC hashes to individual claims
+    mapping(bytes32 => uint256) public claimCount; // Maps VC hashes to the number of claims
 
     // Events to log actions
     event DIDRegistered(address indexed controller, string did);
@@ -75,39 +78,59 @@ contract DIDRegistry {
     // Issue a Verifiable Credential
     function issueVC(
         address _holder,
-        string memory _credentialHash,
+        string memory _context,
+        string memory _typeVC,
         string memory _issuanceDate,
         string memory _expirationDate,
-        Claim[] memory _claims
+        Claim[] memory _claims,
+        string memory _proof
     ) public {
-        bytes32 vcId = keccak256(abi.encodePacked(_credentialHash, _holder));
+        bytes32 vcId = keccak256(abi.encodePacked(_context, _holder, _issuanceDate));
         require(!vcRegistry[vcId].exists, "VC already issued");
 
-        // Store claims in the mapping
-        Claim[] storage claimsStorage = claimsRegistry[vcId];
-
+        // Store claims in the mapping one by one
         for (uint256 i = 0; i < _claims.length; i++) {
-            claimsStorage.push(Claim({
-                claimType: _claims[i].claimType,
-                claimValue: _claims[i].claimValue
-            }));
+            claimsRegistry[vcId][i] = _claims[i];
         }
+        claimCount[vcId] = _claims.length; // Store the number of claims
 
+        // Store the VC document
         vcRegistry[vcId] = VerifiableCredential({
-            credentialHash: _credentialHash,
-            issuer: msg.sender,
+            context: _context,
+            typeVC: _typeVC,
+            issuer: addressToString(msg.sender), // Convert address to string
             holder: _holder,
             issuanceDate: _issuanceDate,
             expirationDate: _expirationDate,
+            proof: _proof,
             exists: true
         });
 
-        emit VCIssued(msg.sender, _holder, _credentialHash);
+        emit VCIssued(msg.sender, _holder, string(abi.encodePacked(vcId)));
+    }
+
+    // Convert an address to a string
+    function addressToString(address _addr) internal pure returns (string memory) {
+        bytes32 value = bytes32(uint256(uint160(_addr)));
+        bytes memory alphabet = "0123456789abcdef";
+
+        bytes memory str = new bytes(42);
+        str[0] = '0';
+        str[1] = 'x';
+        for (uint256 i = 0; i < 20; i++) {
+            str[2 + i * 2] = alphabet[uint8(value[i + 12] >> 4)];
+            str[3 + i * 2] = alphabet[uint8(value[i + 12] & 0x0f)];
+        }
+        return string(str);
     }
 
     // Verify a Verifiable Credential
-    function verifyVC(string memory _credentialHash, address _holder) public view returns (bool) {
-        bytes32 vcId = keccak256(abi.encodePacked(_credentialHash, _holder));
+    function verifyVC(
+        string memory _context,
+        address _holder,
+        string memory _issuanceDate
+    ) public view returns (bool) {
+        bytes32 vcId = keccak256(abi.encodePacked(_context, _holder, _issuanceDate));
         return vcRegistry[vcId].exists;
     }
 
@@ -133,8 +156,13 @@ contract DIDRegistry {
     }
 
     // Get claims for a Verifiable Credential
-    function getClaims(string memory _credentialHash, address _holder) public view returns (Claim[] memory) {
-        bytes32 vcId = keccak256(abi.encodePacked(_credentialHash, _holder));
-        return claimsRegistry[vcId];
+    function getClaims(string memory _context, address _holder, string memory _issuanceDate) public view returns (Claim[] memory) {
+        bytes32 vcId = keccak256(abi.encodePacked(_context, _holder, _issuanceDate));
+        uint256 count = claimCount[vcId];
+        Claim[] memory claims = new Claim[](count);
+        for (uint256 i = 0; i < count; i++) {
+            claims[i] = claimsRegistry[vcId][i];
+        }
+        return claims;
     }
 }
