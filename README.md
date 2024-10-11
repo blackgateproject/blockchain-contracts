@@ -4,7 +4,7 @@ This is where the source for BlackGate's Blockchain module resides, there is not
 
 Ideally this is what it should be later on, subject to change however
 
-# How to run
+# How to run tests
 
 ```
 # Copy this as it is and run in a terminal
@@ -12,6 +12,21 @@ git clone https://github.com/blackgateproject/blockchain.git
 cd blockchain
 npm install
 npx hardhat compile; npx hardhat test
+```
+
+## How to run the hardhat test network for the frontend
+
+```
+# Copy this as it is and run in a terminal
+git clone https://github.com/blackgateproject/blockchain.git
+cd blockchain
+npm install
+npx hardhat compile; npx hardhat node
+```
+
+### In a new terminal session run the following
+```
+npx hardhat ignition deploy ignition/modules/DIDRegistry.ts --network localhost
 ```
 
 ## Dev notes
