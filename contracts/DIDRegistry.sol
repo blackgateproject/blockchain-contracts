@@ -39,7 +39,6 @@ contract DIDRegistry {
         string proof; // Cryptographic proof (could be a signature)
         bool exists; // Check if VC is issued
     }
-
     // Mappings to store DIDs and VCs
     mapping(address => DIDDocument) public didRegistry; // Maps controller addresses to DID documents
     mapping(bytes32 => VerifiableCredential) public vcRegistry; // Maps VC hashes to Verifiable Credentials
@@ -48,7 +47,11 @@ contract DIDRegistry {
 
     // Events to log actions
     event DIDRegistered(address indexed controller, string did);
-    event VCIssued(address indexed issuer, address indexed holder, string credentialHash);
+    event VCIssued(
+        address indexed issuer,
+        address indexed holder,
+        string credentialHash
+    );
 
     // Register a DID
     function registerDID(
@@ -64,12 +67,16 @@ contract DIDRegistry {
 
         // Store public keys
         for (uint256 i = 0; i < _publicKeys.length; i++) {
-            didRegistry[msg.sender].publicKeys[didRegistry[msg.sender].publicKeyCount++] = _publicKeys[i];
+            didRegistry[msg.sender].publicKeys[
+                didRegistry[msg.sender].publicKeyCount++
+            ] = _publicKeys[i];
         }
 
         // Store services
         for (uint256 i = 0; i < _services.length; i++) {
-            didRegistry[msg.sender].services[didRegistry[msg.sender].serviceCount++] = _services[i];
+            didRegistry[msg.sender].services[
+                didRegistry[msg.sender].serviceCount++
+            ] = _services[i];
         }
 
         emit DIDRegistered(msg.sender, _did);
@@ -85,10 +92,13 @@ contract DIDRegistry {
         Claim[] memory _claims,
         string memory _proof
     ) public {
-        bytes32 vcId = keccak256(abi.encodePacked(_context, _holder, _issuanceDate));
+        bytes32 vcId = keccak256(
+            abi.encodePacked(_context, _holder, _issuanceDate)
+        );
         require(!vcRegistry[vcId].exists, "VC already issued");
+        require(_claims.length > 0, "Claims are required");
 
-        // Store claims in the mapping one by one
+        // Store claims in the mapping
         for (uint256 i = 0; i < _claims.length; i++) {
             claimsRegistry[vcId][i] = _claims[i];
         }
@@ -101,7 +111,7 @@ contract DIDRegistry {
             issuer: addressToString(msg.sender), // Convert address to string
             holder: _holder,
             issuanceDate: _issuanceDate,
-            expirationDate: _expirationDate,
+            expirationDate: _expirationDate, // Properly store expiration date
             proof: _proof,
             exists: true
         });
@@ -110,13 +120,15 @@ contract DIDRegistry {
     }
 
     // Convert an address to a string
-    function addressToString(address _addr) internal pure returns (string memory) {
+    function addressToString(
+        address _addr
+    ) internal pure returns (string memory) {
         bytes32 value = bytes32(uint256(uint160(_addr)));
         bytes memory alphabet = "0123456789abcdef";
 
         bytes memory str = new bytes(42);
-        str[0] = '0';
-        str[1] = 'x';
+        str[0] = "0";
+        str[1] = "x";
         for (uint256 i = 0; i < 20; i++) {
             str[2 + i * 2] = alphabet[uint8(value[i + 12] >> 4)];
             str[3 + i * 2] = alphabet[uint8(value[i + 12] & 0x0f)];
@@ -130,24 +142,47 @@ contract DIDRegistry {
         address _holder,
         string memory _issuanceDate
     ) public view returns (bool) {
-        bytes32 vcId = keccak256(abi.encodePacked(_context, _holder, _issuanceDate));
-        return vcRegistry[vcId].exists;
+        bytes32 vcId = keccak256(
+            abi.encodePacked(_context, _holder, _issuanceDate)
+        );
+        VerifiableCredential memory vc = vcRegistry[vcId];
+
+        // Check if the VC exists
+        if (!vc.exists) {
+            return false;
+        }
+
+        // Check for expiration
+        if (bytes(vc.expirationDate).length > 0) {
+            uint256 expirationTimestamp = parseTimestamp(vc.expirationDate);
+            return block.timestamp <= expirationTimestamp;
+        }
+        return true; // If no expiration date, it's valid
     }
 
     // Get a registered DID
-    function getDID(address _controller) public view returns (
-        string memory did,
-        PublicKey[] memory publicKeys,
-        Service[] memory services
-    ) {
+    function getDID(
+        address _controller
+    )
+        public
+        view
+        returns (
+            string memory did,
+            PublicKey[] memory publicKeys,
+            Service[] memory services
+        )
+    {
         require(didRegistry[_controller].exists, "DID not registered");
         DIDDocument storage didDoc = didRegistry[_controller];
         PublicKey[] memory keys = new PublicKey[](didDoc.publicKeyCount);
+        Service[] memory servs = new Service[](didDoc.serviceCount);
+
+        // Copy public keys
         for (uint256 i = 0; i < didDoc.publicKeyCount; i++) {
             keys[i] = didDoc.publicKeys[i];
         }
 
-        Service[] memory servs = new Service[](didDoc.serviceCount);
+        // Copy services
         for (uint256 i = 0; i < didDoc.serviceCount; i++) {
             servs[i] = didDoc.services[i];
         }
@@ -155,14 +190,59 @@ contract DIDRegistry {
         return (didDoc.did, keys, servs);
     }
 
-    // Get claims for a Verifiable Credential
-    function getClaims(string memory _context, address _holder, string memory _issuanceDate) public view returns (Claim[] memory) {
-        bytes32 vcId = keccak256(abi.encodePacked(_context, _holder, _issuanceDate));
+    // Get claims for a given Verifiable Credential
+    function getClaims(
+        string memory _context,
+        address _holder,
+        string memory _issuanceDate
+    ) public view returns (Claim[] memory) {
+        bytes32 vcId = keccak256(
+            abi.encodePacked(_context, _holder, _issuanceDate)
+        );
         uint256 count = claimCount[vcId];
+
         Claim[] memory claims = new Claim[](count);
         for (uint256 i = 0; i < count; i++) {
             claims[i] = claimsRegistry[vcId][i];
         }
+
         return claims;
+    }
+
+    // Function to parse a timestamp string
+    function parseTimestamp(string memory dateString) internal pure returns (uint256) {
+    bytes memory dateBytes = bytes(dateString);
+    require(dateBytes.length == 20, "Invalid date format: Expected YYYY-MM-DDTHH:MM:SSZ");
+
+    // Extract year, month, day, hour, minute, second
+    uint256 year = parseUint(dateBytes, 0, 4);
+    uint256 month = parseUint(dateBytes, 5, 2);
+    uint256 day = parseUint(dateBytes, 8, 2);
+    uint256 hour = parseUint(dateBytes, 11, 2);
+    uint256 minute = parseUint(dateBytes, 14, 2);
+    uint256 second = parseUint(dateBytes, 17, 2);
+
+    // Simple validation for month and day
+    require(month >= 1 && month <= 12, "Invalid month");
+    require(day >= 1 && day <= 31, "Invalid day"); // Consider adding logic for specific month days
+
+    // Calculate the timestamp (this is still a simplified calculation)
+    uint256 timestamp = (year - 1970) * 365 days + (month - 1) * 30 days + (day - 1) * 1 days + hour * 1 hours + minute * 1 minutes + second * 1 seconds;
+
+    return timestamp;
+}
+
+
+    // Function to parse a substring into a uint
+    function parseUint(
+        bytes memory b,
+        uint256 start,
+        uint256 length
+    ) internal pure returns (uint256) {
+        uint256 result = 0;
+        for (uint256 i = start; i < start + length; i++) {
+            result = result * 10 + (uint8(b[i]) - 48); // ASCII '0' = 48
+        }
+        return result;
     }
 }
