@@ -28,4 +28,4 @@ export default async function fundAccount(accountAddress: string, amount: string
 }
 
 // Replace with your desired account address and amount to fund
-fundAccount("0x175f4EA914dc3DeF6a41E76a94CD8Ad3b437a94f", "1.0");
+// fundAccount("0x175f4EA914dc3DeF6a41E76a94CD8Ad3b437a94f", "1.0");
