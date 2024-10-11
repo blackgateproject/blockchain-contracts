@@ -7,10 +7,10 @@ import fundAccount from "../../source/fundAccount";
 export default buildModule("DIDRegistry", (m) => {
     const DIDReg = m.contract("DIDRegistry");
 
-    m.afterDeploy(async () => {
-        const accounts = DIDReg.address;
+    // m.afterDeploy(async () => {
+    //     const accounts = DIDReg.address;
 
-    }
+    // }
 
     return { DIDReg };
 });
