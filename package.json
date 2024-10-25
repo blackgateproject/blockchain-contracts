@@ -13,7 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "hardhat": "^2.22.13"
+    "hardhat": "^2.22.15"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-ethers": "^3.0.8",
