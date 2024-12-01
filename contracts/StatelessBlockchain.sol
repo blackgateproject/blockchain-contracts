@@ -7,14 +7,116 @@ contract StatelessBlockchain {
     mapping(address => uint256) public identities; // Maps user to identity credential hash
     mapping(address => uint256) public witness; // Witness for each identity
 
-    event IdentityAdded(address indexed user, uint256 credentialHash);
-    event IdentityRemoved(address indexed user, uint256 credentialHash);
-    event IdentityVerified(address indexed user, bool isValid);
-    event Debug(uint256 hashedCredential, uint256 newAccumulator); // DEBUG: Logs for debugging
+    event IdentityAdded(
+        address indexed user,
+        uint256 credentialHash,
+        uint256 timestamp
+    );
+    event IdentityRemoved(
+        address indexed user,
+        uint256 credentialHash,
+        uint256 timestamp
+    );
+    event IdentityVerified(
+        address indexed user,
+        bool isValid,
+        uint256 timestamp
+    );
+    event Debug(
+        uint256 hashedCredential,
+        uint256 newAccumulator,
+        uint256 timestamp
+    ); // DEBUG: Logs for debugging
 
     constructor(uint256 bitsize) {
         accumulator = 1;
         modN = generatePrime(bitsize);
+    }
+
+    // ==================================================================
+    // ================== Identity Management Functions =================
+    // ==================================================================
+
+    // Add new identity to the accumulator
+    function addIdentity(uint256 identityCredential) public {
+        require(identities[msg.sender] == 0, "Identity already exists");
+
+        uint256 hashedCredential = primeHash(identityCredential);
+        identities[msg.sender] = hashedCredential;
+        witness[msg.sender] = accumulator;
+
+        accumulator = modExp(accumulator, hashedCredential, modN);
+
+        // Emit debug log
+        emit Debug(hashedCredential, accumulator, block.timestamp);
+
+        emit IdentityAdded(msg.sender, identityCredential, block.timestamp);
+    }
+
+    // Remove identity from the accumulator
+    function removeIdentity() public {
+        require(identities[msg.sender] != 0, "Identity does not exist");
+        uint256 hashedCredential = identities[msg.sender];
+        accumulator = modExp(accumulator, modInv(hashedCredential, modN), modN);
+        delete identities[msg.sender];
+        delete witness[msg.sender];
+
+        emit IdentityRemoved(msg.sender, hashedCredential, block.timestamp);
+    }
+
+    // Verify identity using the witness.
+    function verifyIdentity(
+        address user,
+        uint256 identityCredential
+    ) public returns (bool) {
+        uint256 hashedCredential = primeHash(identityCredential);
+        uint256 witnessValue = witness[user];
+        uint256 calculatedAccumulator = modExp(
+            witnessValue,
+            hashedCredential,
+            modN
+        );
+        bool isValid = (calculatedAccumulator == accumulator);
+
+        emit IdentityVerified(user, isValid, block.timestamp);
+        return isValid;
+    }
+
+    // ==================================================================
+    // ================== Helper Functions ==============================
+    // ==================================================================
+
+    // Modular exponentiation
+    function modExp(
+        uint256 base,
+        uint256 exp,
+        uint256 mod
+    ) internal pure returns (uint256) {
+        uint256 result = 1;
+        while (exp > 0) {
+            if (exp % 2 == 1) {
+                result = (result * base) % mod;
+            }
+            base = (base * base) % mod;
+            exp /= 2;
+        }
+        return result;
+    }
+
+    // Modular inverse (Extended Euclidean Algorithm)
+    function modInv(uint256 a, uint256 mod) internal pure returns (uint256) {
+        int256 t = 0;
+        int256 newT = 1;
+        int256 r = int256(mod);
+        int256 newR = int256(a);
+        while (newR != 0) {
+            int256 quotient = r / newR;
+            (t, newT) = (newT, t - quotient * newT);
+            (r, newR) = (newR, r - quotient * newR);
+        }
+        if (r > 1) revert("No inverse");
+        if (t < 0) t += int256(mod);
+        return uint256(t);
     }
 
     function generatePrime(uint256 bitsize) internal view returns (uint256) {
@@ -50,83 +152,5 @@ contract StatelessBlockchain {
     function primeHash(uint256 input) internal pure returns (uint256) {
         uint256 hashValue = uint256(keccak256(abi.encodePacked(input)));
         return hashValue > 1 ? hashValue : 2; // Ensure hashValue > 1
-    }
-
-    // Add new identity to the accumulator
-    function addIdentity(uint256 identityCredential) public {
-        require(identities[msg.sender] == 0, "Identity already exists");
-
-        uint256 hashedCredential = primeHash(identityCredential);
-        identities[msg.sender] = hashedCredential;
-        witness[msg.sender] = accumulator;
-
-        accumulator = modExp(accumulator, hashedCredential, modN);
-
-        // Emit debug log
-        emit Debug(hashedCredential, accumulator);
-
-        emit IdentityAdded(msg.sender, identityCredential);
-    }
-
-    // Remove identity from the accumulator
-    function removeIdentity() public {
-        require(identities[msg.sender] != 0, "Identity does not exist");
-        uint256 hashedCredential = identities[msg.sender];
-        accumulator = modExp(accumulator, modInv(hashedCredential, modN), modN);
-        delete identities[msg.sender];
-        delete witness[msg.sender];
-
-        emit IdentityRemoved(msg.sender, hashedCredential);
-    }
-
-    // Verify identity using the witness.
-    function verifyIdentity(
-        address user,
-        uint256 identityCredential
-    ) public returns (bool) {
-        uint256 hashedCredential = primeHash(identityCredential);
-        uint256 witnessValue = witness[user];
-        uint256 calculatedAccumulator = modExp(
-            witnessValue,
-            hashedCredential,
-            modN
-        );
-        bool isValid = (calculatedAccumulator == accumulator);
-
-        emit IdentityVerified(user, isValid);
-        return isValid;
-    }
-
-    // Modular exponentiation
-    function modExp(
-        uint256 base,
-        uint256 exp,
-        uint256 mod
-    ) internal pure returns (uint256) {
-        uint256 result = 1;
-        while (exp > 0) {
-            if (exp % 2 == 1) {
-                result = (result * base) % mod;
-            }
-            base = (base * base) % mod;
-            exp /= 2;
-        }
-        return result;
-    }
-
-    // Modular inverse (Extended Euclidean Algorithm)
-    function modInv(uint256 a, uint256 mod) internal pure returns (uint256) {
-        int256 t = 0;
-        int256 newT = 1;
-        int256 r = int256(mod);
-        int256 newR = int256(a);
-        while (newR != 0) {
-            int256 quotient = r / newR;
-            (t, newT) = (newT, t - quotient * newT);
-            (r, newR) = (newR, r - quotient * newR);
-        }
-        if (r > 1) revert("No inverse");
-        if (t < 0) t += int256(mod);
-        return uint256(t);
     }
 }
