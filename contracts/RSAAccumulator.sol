@@ -3,39 +3,17 @@ pragma solidity ^0.8.0;
 
 import "./BytesLib.sol";
 
-interface IStatelessBlockchain {
-    function verifyIdentity(
-        address user,
-        uint256 identityCredential
-    ) external returns (bool);
-}
-
-interface IDIDRegistry {
-    function getDID(
-        address _controller
-    ) external view returns (string memory did);
-}
-
 contract RSAAccumulator {
     using BytesLib for bytes;
 
     bytes acc_post;
     bytes modulus;
     address public owner;
-    IStatelessBlockchain public statelessBlockchain;
-    IDIDRegistry public didRegistry;
 
-    constructor(
-        bytes memory _modulus,
-        bytes memory _acc_post,
-        address statelessBlockchainAddress,
-        address didRegistryAddress
-    ) {
+    constructor(bytes memory _modulus, bytes memory _acc_post) {
         acc_post = _acc_post;
         modulus = _modulus;
         owner = msg.sender;
-        statelessBlockchain = IStatelessBlockchain(statelessBlockchainAddress);
-        didRegistry = IDIDRegistry(didRegistryAddress);
     }
 
     modifier onlyOwner() {
@@ -116,16 +94,5 @@ contract RSAAccumulator {
         }
 
         return p.equal(acc_post);
-    }
-
-    function verifyIdentityWithStatelessBlockchain(
-        address user,
-        uint256 identityCredential
-    ) public returns (bool) {
-        return statelessBlockchain.verifyIdentity(user, identityCredential);
-    }
-
-    function getDID(address _controller) public view returns (string memory) {
-        return didRegistry.getDID(_controller);
     }
 }
