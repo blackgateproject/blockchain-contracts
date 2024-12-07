@@ -1,6 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+interface IStatelessBlockchain {
+    function verifyIdentity(
+        address user,
+        uint256 identityCredential
+    ) external returns (bool);
+}
+
+interface IRSAAccumulator {
+    function verify(bytes memory base, bytes32 e) external returns (bool);
+}
+
 contract DIDRegistry {
     struct PublicKey {
         string id; // e.g., "did:example:123#keys-1"
@@ -52,6 +63,13 @@ contract DIDRegistry {
         address indexed holder,
         string credentialHash
     );
+
+    IStatelessBlockchain public statelessBlockchain;
+    IRSAAccumulator public rsaAccumulator;
+
+    constructor(address statelessBlockchainAddress) {
+        statelessBlockchain = IStatelessBlockchain(statelessBlockchainAddress);
+    }
 
     // Register a DID
     function registerDID(
@@ -160,6 +178,29 @@ contract DIDRegistry {
         return true; // If no expiration date, it's valid
     }
 
+    // Verify a DID using a Verifiable Credential
+    function verifyDID(
+        string memory _context,
+        address _holder,
+        string memory _issuanceDate,
+        string memory _proof
+    ) public view returns (bool) {
+        bytes32 vcId = keccak256(
+            abi.encodePacked(_context, _holder, _issuanceDate)
+        );
+        VerifiableCredential memory vc = vcRegistry[vcId];
+
+        // Check if the VC exists
+        if (!vc.exists) {
+            return false;
+        }
+
+        // Verify the proof (signature)
+        return
+            keccak256(abi.encodePacked(vc.proof)) ==
+            keccak256(abi.encodePacked(_proof));
+    }
+
     // Get a registered DID
     function getDID(
         address _controller
@@ -210,28 +251,43 @@ contract DIDRegistry {
     }
 
     // Function to parse a timestamp string
-    function parseTimestamp(string memory dateString) internal pure returns (uint256) {
-    bytes memory dateBytes = bytes(dateString);
-    require(dateBytes.length == 20, "Invalid date format: Expected YYYY-MM-DDTHH:MM:SSZ");
+    function parseTimestamp(
+        string memory dateString
+    ) internal pure returns (uint256) {
+        bytes memory dateBytes = bytes(dateString);
+        require(
+            dateBytes.length == 20,
+            "Invalid date format: Expected YYYY-MM-DDTHH:MM:SSZ"
+        );
 
-    // Extract year, month, day, hour, minute, second
-    uint256 year = parseUint(dateBytes, 0, 4);
-    uint256 month = parseUint(dateBytes, 5, 2);
-    uint256 day = parseUint(dateBytes, 8, 2);
-    uint256 hour = parseUint(dateBytes, 11, 2);
-    uint256 minute = parseUint(dateBytes, 14, 2);
-    uint256 second = parseUint(dateBytes, 17, 2);
+        // Extract year, month, day, hour, minute, second
+        uint256 year = parseUint(dateBytes, 0, 4);
+        uint256 month = parseUint(dateBytes, 5, 2);
+        uint256 day = parseUint(dateBytes, 8, 2);
+        uint256 hour = parseUint(dateBytes, 11, 2);
+        uint256 minute = parseUint(dateBytes, 14, 2);
+        uint256 second = parseUint(dateBytes, 17, 2);
 
-    // Simple validation for month and day
-    require(month >= 1 && month <= 12, "Invalid month");
-    require(day >= 1 && day <= 31, "Invalid day"); // Consider adding logic for specific month days
+        // Simple validation for month and day
+        require(month >= 1 && month <= 12, "Invalid month");
+        require(day >= 1 && day <= 31, "Invalid day"); // Consider adding logic for specific month days
 
-    // Calculate the timestamp (this is still a simplified calculation)
-    uint256 timestamp = (year - 1970) * 365 days + (month - 1) * 30 days + (day - 1) * 1 days + hour * 1 hours + minute * 1 minutes + second * 1 seconds;
+        // Calculate the timestamp (this is still a simplified calculation)
+        uint256 timestamp = (year - 1970) *
+            365 days +
+            (month - 1) *
+            30 days +
+            (day - 1) *
+            1 days +
+            hour *
+            1 hours +
+            minute *
+            1 minutes +
+            second *
+            1 seconds;
 
-    return timestamp;
-}
-
+        return timestamp;
+    }
 
     // Function to parse a substring into a uint
     function parseUint(
@@ -244,5 +300,19 @@ contract DIDRegistry {
             result = result * 10 + (uint8(b[i]) - 48); // ASCII '0' = 48
         }
         return result;
+    }
+
+    function verifyIdentityWithStatelessBlockchain(
+        address user,
+        uint256 identityCredential
+    ) public returns (bool) {
+        return statelessBlockchain.verifyIdentity(user, identityCredential);
+    }
+
+    function verifyWithRSAAccumulator(
+        bytes memory base,
+        bytes32 e
+    ) public returns (bool) {
+        return rsaAccumulator.verify(base, e);
     }
 }
