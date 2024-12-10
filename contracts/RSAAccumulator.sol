@@ -23,9 +23,9 @@ contract RSAAccumulator {
         _;
     }
 
-    // Function to update the accumulator value, restricted to the owner
-    function updateAccumulator(bytes memory newAccPost) public onlyOwner {
-        acc_post = newAccPost;
+    // Function to set the accumulator value, restricted to the owner
+    function setAccumulator(bytes memory _acc_post) public onlyOwner {
+        acc_post = _acc_post;
     }
 
     // Function to get the current accumulator value
@@ -36,6 +36,11 @@ contract RSAAccumulator {
     // Function to get the modulus value
     function getModulus() public view returns (bytes memory) {
         return modulus;
+    }
+
+    // Function to set the modulus value, restricted to the owner
+    function setModulus(bytes memory _modulus) public onlyOwner {
+        modulus = _modulus;
     }
 
     // Function to verify the base with the exponent and modulus
