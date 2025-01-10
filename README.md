@@ -25,9 +25,13 @@ npx hardhat compile; npx hardhat node
 ```
 
 ### In a new terminal session run the following
+
 ```
-npx hardhat ignition deploy ignition/modules/DIDRegistry.ts --network localhost
+npx hardhat ignition deploy ignition/modules/Blackgate.ts --network localhost
 ```
+
+
+
 
 ## Dev notes
 
