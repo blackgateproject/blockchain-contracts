@@ -1,23 +1,21 @@
 {
   "name": "blockchain",
   "version": "1.0.0",
-  "description": "This is where the source for BlackGate's Blockchain module resides, there is noticeable overlap with the backend so both frontend's backend and blockchain's backend for now is seperate.",
   "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blackgateproject/blockchain.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "hardhat": "^2.22.15"
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/blackgateproject/blockchain/issues"
   },
-  "devDependencies": {
-    "@nomicfoundation/hardhat-ethers": "^3.0.8",
-    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "ethers": "^6.13.3"
-  }
+  "homepage": "https://github.com/blackgateproject/blockchain#readme",
+  "description": ""
 }
