@@ -1,10 +1,27 @@
-import { HardhatUserConfig } from "hardhat/config";
-
 import "@matterlabs/hardhat-zksync";
+import "@typechain/hardhat";
 import dotenv from "dotenv";
+import "hardhat-abi-exporter";
+import { HardhatUserConfig } from "hardhat/config";
 dotenv.config();
 
 const config: HardhatUserConfig = {
+  solidity: {
+    version: "0.8.24",
+  },
+  typechain: {
+    outDir: "typechain",
+    target: "ethers-v6",
+  },
+  abiExporter: {
+    // more info about this plugin in https://www.npmjs.com/package/hardhat-abi-exporter
+    path: "./abis",
+    runOnCompile: true,
+    clear: true,
+    flat: true,
+    spacing: 2,
+    pretty: true,
+  },
   defaultNetwork: "zkSyncSepoliaTestnet",
   networks: {
     zkSyncSepoliaTestnet: {
@@ -53,9 +70,6 @@ const config: HardhatUserConfig = {
       // find all available options in the official documentation
       // https://docs.zksync.io/build/tooling/hardhat/hardhat-zksync-solc#configuration
     },
-  },
-  solidity: {
-    version: "0.8.24",
   },
 };
 
