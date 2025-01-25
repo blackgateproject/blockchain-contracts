@@ -6,8 +6,8 @@ import "./BytesLib.sol";
 contract RSAAccumulator {
     using BytesLib for bytes;
 
-    bytes acc_post; // The current accumulator value
-    bytes modulus; // The modulus used in the RSA accumulator
+    bytes private acc_post; // The current accumulator value
+    bytes private modulus; // The modulus used in the RSA accumulator
     address public owner; // The owner of the contract
 
     // Constructor to initialize the contract with modulus and initial accumulator value
@@ -29,12 +29,12 @@ contract RSAAccumulator {
     }
 
     // Function to get the current accumulator value
-    function getAccumulator() public view returns (bytes memory) {
+    function getAccumulator() public view onlyOwner returns (bytes memory) {
         return acc_post;
     }
 
     // Function to get the modulus value
-    function getModulus() public view returns (bytes memory) {
+    function getModulus() public view onlyOwner returns (bytes memory) {
         return modulus;
     }
 
