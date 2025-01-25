@@ -31,7 +31,7 @@ contract VerifiableCredentialManager {
     ) external {
         // Fetch the DID document from the DIDRegistry
         DIDRegistry.DIDDocument memory didDoc = didRegistry.getDID(_did);
-        
+
         // Ensure that the caller is the controller of the DID
         /*
         require(
@@ -67,7 +67,7 @@ contract VerifiableCredentialManager {
         string memory _vcHash
     ) external view returns (bool) {
         VerifiableCredential[] memory vcs = vcStore[_did];
-        
+
         // Iterate through all VCs for the given DID
         for (uint256 i = 0; i < vcs.length; i++) {
             // Compare the hash of the stored VC with the provided VC hash

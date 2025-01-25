@@ -1,74 +1,51 @@
-# Blockchain
+# ZKsync Hardhat project template
 
-This is where the source for BlackGate's Blockchain module resides, there is noticeable overlap with the backend so both frontend's backend and blockchain's backend for now is seperate.
+This project was scaffolded with [zksync-cli](https://github.com/matter-labs/zksync-cli).
 
-Ideally this is what it should be later on, subject to change however
+## Project Layout
 
-# How to run tests
+- `/contracts`: Contains solidity smart contracts.
+- `/deploy`: Scripts for contract deployment and interaction.
+- `/test`: Test files.
+- `hardhat.config.ts`: Configuration settings.
 
-```
-# Copy this as it is and run in a terminal
-git clone https://github.com/blackgateproject/blockchain.git
-cd blockchain
-npm install
-npx hardhat compile; npx hardhat test
-```
+## How to Use
 
-## How to run the hardhat test network for the frontend
+- `npm run compile`: Compiles contracts.
+- `npm run deploy`: Deploys using script `/deploy/deploy.ts`.
+- `npm run interact`: Interacts with the deployed contract using `/deploy/interact.ts`.
+- `npm run test`: Tests the contracts.
 
-```
-# Copy this as it is and run in a terminal
-git clone https://github.com/blackgateproject/blockchain.git
-cd blockchain
-npm install
-npx hardhat compile; npx hardhat node
-```
+Note: Both `npm run deploy` and `npm run interact` are set in the `package.json`. You can also run your files directly, for example: `npx hardhat deploy-zksync --script deploy.ts`
 
-### In a new terminal session run the following
+### Environment Settings
+
+To keep private keys safe, this project pulls in environment variables from `.env` files. Primarily, it fetches the wallet's private key.
+
+Rename `.env.example` to `.env` and fill in your private key:
 
 ```
-npx hardhat ignition deploy ignition/modules/Blackgate.ts --network localhost
+WALLET_PRIVATE_KEY=your_private_key_here...
 ```
 
+### Network Support
 
+`hardhat.config.ts` comes with a list of networks to deploy and test contracts. Add more by adjusting the `networks` section in the `hardhat.config.ts`. To make a network the default, set the `defaultNetwork` to its name. You can also override the default using the `--network` option, like: `hardhat test --network dockerizedNode`.
 
+### Local Tests
 
-## Dev notes
+Running `npm run test` by default runs the [ZKsync In-memory Node](https://docs.zksync.io/build/test-and-debug/in-memory-node) provided by the [@matterlabs/hardhat-zksync-node](https://docs.zksync.io/build/tooling/hardhat/hardhat-zksync-node) tool.
 
-#### Skipping this for now
+Important: ZKsync In-memory Node currently supports only the L2 node. If contracts also need L1, use another testing environment like Dockerized Node. Refer to [test documentation](https://docs.zksync.io/build/test-and-debug) for details.
 
-- ~~Trying to setup Blockchain~~
-  - ~~Contracts need more research~~
-    - ~~Create one for each or make them based on flow? (8 vs 4)~~
-  - ~~IPFS is required~~
-    - ~~Switched from IPFS Client to Helia IPFS~~
-    - ~~need to add a note that IPFS-Desktop has to be installed as well~~
-    - ~~The problem w this is that IPFS-Desktop is public by default and i have to go over the Config Details to understand what the hell is going on~~
-      - ~~Moving onto IPFS-Kubo?~~
-    - ~~SWITCH:: Need to figure out a way to ensure that the IPFS nodes are distributed along with the chain nodes in test or at least scaled with the test nodes.~~
-- ~~What we're actually doing when ID Creds are being sent to the blockchain layer (Looking at the diagram)~~
-  - ~~On-chain (S_Contracts)~~
-    - ~~A record that holds the following is created for each VC CRUD operation~~
-      - ~~Header~~
-        - ~~hash(PrevBlock)~~
-        - ~~hash(CurrBlock)~~
-        - ~~IDCommitment~~
-          - ~~ID Commitment is the RSA Accumulator at that stage, that has been converted to a constant-length IDC~~
-  - ~~Off-chain (IPFS)~~
-    - ~~The VC recieved is stored here first (for schema refer to doc figure 2 on page 5)~~
+## Useful Links
 
-#### TODO
+- [Docs](https://docs.zksync.io/build)
+- [Official Site](https://zksync.io/)
+- [GitHub](https://github.com/matter-labs)
+- [Twitter](https://twitter.com/zksync)
+- [Discord](https://join.zksync.dev/)
 
-- Critical
-  - User Identity & Acess Management:
-    - FR - 1: System should provide robust idenitty Management, ensure that UD & Identities are securely stored
-      - TL;DR: User must be able to create accounts, they must also be able to sign into said accounts
-        - User Roles are just two atm.
-          - User can Access Federated Apps or manage their account creds
-          - Admin can View all active users, edit their details and delete their accounts
-- High
-  - Support Page.
-    - Not in FR but it must be functional if Critical have been addresed
-- Medium
-  - Decaying Trust Score
-  - Admin revocation roles
+## License
+
+This project is under the [MIT](./LICENSE) license.
