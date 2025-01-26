@@ -8,8 +8,8 @@ export default async function () {
   const accumulatorPost =
     "0x0e3a71c11edd0072df534f338cc464069e88ba2ce3768d820b42667fa0da974d7d72fb083f2beb4c9be27c23c2f48317fca3af84e01987624bee505946053a8e0d3fd318be1a19407d99e2186b6c0022561c29ca140e0202861259ee7babcf6bb711988bc21f0054defd086a4630f7b8df2555a11584598071fb6fd80debd725a950d7bd85db419c43d5579f8240a8bb7e485005443d2f9b08209813b7e2d8bd063148a97796e5a6b277527744828afcaf0d38d289b25a6ddfddba122157c8f0f114770e7a970b5d5df751cd61df63616074bd26f39d73f4c098ebfe02c7091d3429aaee54165bc0015953db10aebb23cf07e216ca482f77a1e0523e8e63cbe6f5bb5b232719d9d005afee9ab577c58b48f0c7519fc31dca3a5275b5abb14e82be629f9f924caea7fee3f67abadd47296a4ea07d227199fcbe5f053beac980ccc0411be7910c883b5d3dfa894934639e7c11657f3645626fe989dd4ec98db968533e5be99af03aba58a156d907e28895209958d4b13e6e3d9156783e24dd0889";
 
-  const contractArtifactName = "RSAAccumulator";
-  const RSAAccumulatorCNTRT = await deployContract(contractArtifactName, [
+  const contractArtifactName = "RSAAccumulatorVerifier";
+  const RSAAccumulatorVerifierCNTRT = await deployContract(contractArtifactName, [
     modulus,
     accumulatorPost,
   ]);
@@ -21,7 +21,7 @@ export default async function () {
   const VCMNGRCTRT = await deployContract(contractArtifactName3, [
     DIDREGCNTRT.target,
   ]);
-  console.log("RSAAccumulator deployed to:", RSAAccumulatorCNTRT.target);
+  console.log("RSAAccumulatorVerifier deployed to:", RSAAccumulatorVerifierCNTRT.target);
   console.log("DIDRegistry deployed to:", DIDREGCNTRT.target);
   console.log("VerifiableCredentialManager deployed to:", VCMNGRCTRT.target);
 }

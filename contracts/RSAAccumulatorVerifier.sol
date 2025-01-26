@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import "./BytesLib.sol";
 
-contract RSAAccumulator {
+contract RSAAccumulatorVerifier {
     using BytesLib for bytes;
 
     bytes private acc_post; // The current accumulator value
