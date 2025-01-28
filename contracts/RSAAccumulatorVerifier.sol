@@ -39,7 +39,7 @@ contract RSAAccumulatorVerifier {
         bytes memory base,
         bytes32 e,
         bytes memory provided_acc_post
-    ) public onlyOwner returns (bool) {
+    ) public returns (bool) {
         uint base_length = base.length;
         uint loops_base = (base_length + 31) / 32; // Calculate the number of 32-byte blocks for base
         uint modulus_length = modulus.length;

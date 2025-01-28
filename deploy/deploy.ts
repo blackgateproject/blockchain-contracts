@@ -16,12 +16,17 @@ export default async function () {
   );
 
   const contractArtifactName2 = "DIDRegistry";
-  const DIDREGCNTRT = await deployContract(contractArtifactName2);
+  const DIDREGCNTRT = await deployContract(contractArtifactName2, [], { 
+    // noVerify: true 
+  }
+  );
 
   const contractArtifactName3 = "VerifiableCredentialManager";
   const VCMNGRCTRT = await deployContract(contractArtifactName3, [
-    DIDREGCNTRT.target,
-  ]);
+    DIDREGCNTRT.target, 
+  ], {
+    // noVerify: true,
+  });
   console.log(
     "RSAAccumulatorVerifier deployed to:",
     RSAAccumulatorVerifierCNTRT.target
