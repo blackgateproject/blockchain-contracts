@@ -1,18 +1,19 @@
-// SPDX-License-Identifier: MIT
+ // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "./BytesLib.sol";
 
-contract RSAAccumulator {
+contract RSAAccumulatorVerifier {
     using BytesLib for bytes;
 
-    bytes acc_post; // The current accumulator value
-    bytes modulus; // The modulus used in the RSA accumulator
+    // bytes private acc_post; // The current accumulator value
+    bytes private modulus; // The modulus used in the RSA accumulator
     address public owner; // The owner of the contract
 
     // Constructor to initialize the contract with modulus and initial accumulator value
-    constructor(bytes memory _modulus, bytes memory _acc_post) {
-        acc_post = _acc_post;
+    // constructor(bytes memory _modulus, bytes memory _acc_post) {
+    constructor(bytes memory _modulus) {
+        // acc_post = _acc_post;
         modulus = _modulus;
         owner = msg.sender;
     }
@@ -23,18 +24,8 @@ contract RSAAccumulator {
         _;
     }
 
-    // Function to set the accumulator value, restricted to the owner
-    function setAccumulator(bytes memory _acc_post) public onlyOwner {
-        acc_post = _acc_post;
-    }
-
-    // Function to get the current accumulator value
-    function getAccumulator() public view returns (bytes memory) {
-        return acc_post;
-    }
-
     // Function to get the modulus value
-    function getModulus() public view returns (bytes memory) {
+    function getModulus() public view onlyOwner returns (bytes memory) {
         return modulus;
     }
 
@@ -43,8 +34,12 @@ contract RSAAccumulator {
         modulus = _modulus;
     }
 
-    // Function to verify the base with the exponent and modulus
-    function verify(bytes memory base, bytes32 e) public returns (bool) {
+    // Function to verify the base with the exponent, modulus, and a provided acc_post
+    function verify(
+        bytes memory base,
+        bytes32 e,
+        bytes memory provided_acc_post
+    ) public returns (bool) {
         uint base_length = base.length;
         uint loops_base = (base_length + 31) / 32; // Calculate the number of 32-byte blocks for base
         uint modulus_length = modulus.length;
@@ -111,7 +106,7 @@ contract RSAAccumulator {
             mstore(0x40, add(p, add(0x20, base_length)))
         }
 
-        // Compare the result with the current accumulator value
-        return p.equal(acc_post);
+        // Compare the result with the provided accumulator value
+        return p.equal(provided_acc_post);
     }
 }
