@@ -13,13 +13,14 @@ const Blackgate = buildModule("Blackgate", (m) => {
     accumulatorPost,
   ]);
 
-  // Deploy DIDRegistry
-  const didRegistry = m.contract("DIDRegistry", []);
+  // // Deploy DIDRegistry
+  // const didRegistry = m.contract("DIDRegistry", []);
 
-  // Deploy VerifiableCredentialManager
-  const vcManager = m.contract("VerifiableCredentialManager", [didRegistry]);
+  // // Deploy VerifiableCredentialManager
+  // const vcManager = m.contract("VerifiableCredentialManager", [didRegistry]);
 
-  return { rsaAccumulator, didRegistry, vcManager };
+  // return { rsaAccumulator, didRegistry, vcManager };
+  return { rsaAccumulator };
 });
 
 export default Blackgate;
