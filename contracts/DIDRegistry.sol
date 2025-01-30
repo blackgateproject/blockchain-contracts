@@ -6,7 +6,7 @@ contract DIDRegistry {
     struct DIDDocument {
         string did; // Decentralized Identifier
         string ipfsCID; // IPFS CID of the DID Document
-        string accumulatorValue; // RSA Accumulator Value
+        // string accumulatorValue; // RSA Accumulator Value
         string publicKey; // Public Key associated with the DID
         // address controller; // Owner of the DID
         uint256 createdAt; // Timestamp of when the DID was created
@@ -18,26 +18,26 @@ contract DIDRegistry {
     event DIDRegistered(string did, string ipfsCID); // Event emitted when a DID is registered
     event DIDUpdated(string did, string ipfsCID); // Event emitted when a DID is updated
 
+    //  * @param _accumulatorValue The RSA Accumulator Value.
     /**
      * @dev Registers a new DID.
      * @param _did The Decentralized Identifier.
      * @param _ipfsCID The IPFS CID of the DID Document.
-     * @param _accumulatorValue The RSA Accumulator Value.
      * @param _publicKey The Public Key associated with the DID.
      */
     function registerDID(
         string memory _did,
         string memory _ipfsCID,
-        string memory _accumulatorValue,
+        // string memory _accumulatorValue,
         string memory _publicKey
-    ) external {
+    ) public {
         // require(bytes(controllers[msg.sender]).length == 0, "Controller already has a DID");
         require(bytes(dids[_did].did).length == 0, "DID already registered");
 
         DIDDocument memory newDoc = DIDDocument({
             did: _did,
             ipfsCID: _ipfsCID,
-            accumulatorValue: _accumulatorValue,
+            // accumulatorValue: _accumulatorValue,
             publicKey: _publicKey,
             // controller: msg.sender,
             createdAt: block.timestamp
@@ -47,6 +47,7 @@ contract DIDRegistry {
         // controllers[msg.sender] = _did;
 
         emit DIDRegistered(_did, _ipfsCID);
+        
     }
 
     /**
@@ -54,7 +55,7 @@ contract DIDRegistry {
      * @param _did The Decentralized Identifier.
      * @param _ipfsCID The new IPFS CID of the DID Document.
      */
-    function updateDID(string memory _did, string memory _ipfsCID) external {
+    function updateDID(string memory _did, string memory _ipfsCID) public {
         DIDDocument storage doc = dids[_did];
         // require(
         //     doc.controller == msg.sender,
@@ -73,7 +74,7 @@ contract DIDRegistry {
      */
     function getDID(
         string memory _did
-    ) external view returns (DIDDocument memory) {
+    ) public view returns (DIDDocument memory) {
         return dids[_did];
     }
 
@@ -84,7 +85,7 @@ contract DIDRegistry {
      */
     // function getDIDByController(
     //     address _controller
-    // ) external view returns (DIDDocument memory) {
+    // ) public view returns (DIDDocument memory) {
     //     string memory did = controllers[_controller];
     //     require(bytes(did).length != 0, "No DID found for the controller");
     //     return dids[did];
