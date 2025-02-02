@@ -16,15 +16,17 @@ export default async function () {
   // );
 
   const contractArtifactName2 = "DIDRegistry";
-  const DIDREGCNTRT = await deployContract(contractArtifactName2, [], { 
-    // noVerify: true 
-  }
-  );
+  const DIDREGCNTRT = await deployContract(contractArtifactName2, [], {
+    // noVerify: true
+  });
 
   const contractArtifactName3 = "VerifiableCredentialManager";
-  const VCMNGRCTRT = await deployContract(contractArtifactName3, [
-    DIDREGCNTRT.target, 
-  ], {
+  // const VCMNGRCTRT = await deployContract(contractArtifactName3, [
+  //   DIDREGCNTRT.target,
+  // ], {
+  //   // noVerify: true,
+  // });
+  const VCMNGRCTRT = await deployContract(contractArtifactName3, [], {
     // noVerify: true,
   });
   // console.log(

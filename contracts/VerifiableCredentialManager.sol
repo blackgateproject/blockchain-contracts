@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./DIDRegistry.sol";
+// import "./DIDRegistry.sol";
 
 contract VerifiableCredentialManager {
     // Structure to store Verifiable Credential details
@@ -12,16 +12,16 @@ contract VerifiableCredentialManager {
         uint256 issuedAt; // Timestamp when the VC was issued
     }
 
-    DIDRegistry private didRegistry; // Instance of the DIDRegistry contract
+    // DIDRegistry private didRegistry; // Instance of the DIDRegistry contract
     mapping(string => VerifiableCredential[]) private vcStore; // Mapping from DID to its issued VCs
 
     // Event emitted when a new VC is issued
     event VCIssued(string did, string vcHash, string ipfsCID);
 
     // Constructor to initialize the DIDRegistry contract address
-    constructor(address _didRegistryAddress) {
-        didRegistry = DIDRegistry(_didRegistryAddress);
-    }
+    // constructor(address _didRegistryAddress) {
+        // didRegistry = DIDRegistry(_didRegistryAddress);
+    // }
 
     // Function to issue a new Verifiable Credential
     function issueVC(
@@ -30,7 +30,7 @@ contract VerifiableCredentialManager {
         string memory _ipfsCID
     ) external {
         // Fetch the DID document from the DIDRegistry
-        DIDRegistry.DIDDocument memory didDoc = didRegistry.getDID(_did);
+        // DIDRegistry.DIDDocument memory didDoc = didRegistry.getDID(_did);
 
         // Ensure that the caller is the controller of the DID
         /*
