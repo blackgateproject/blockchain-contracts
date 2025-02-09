@@ -15,7 +15,7 @@ export default async function () {
   //   ]
   // );
 
-  const contractArtifactName2 = "DIDRegistry";
+  const contractArtifactName2 = "EthereumDIDRegistry";
   const DIDREGCNTRT = await deployContract(contractArtifactName2, [], {
     // noVerify: true
   });
@@ -33,6 +33,6 @@ export default async function () {
   //   "RSAAccumulatorVerifier deployed to:",
   //   RSAAccumulatorVerifierCNTRT.target
   // );
-  console.log("DIDRegistry deployed to:", DIDREGCNTRT.target);
+  console.log("EthereumDIDRegistry deployed to:", DIDREGCNTRT.target);
   console.log("VerifiableCredentialManager deployed to:", VCMNGRCTRT.target);
 }
