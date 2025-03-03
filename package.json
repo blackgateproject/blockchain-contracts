@@ -1,13 +1,15 @@
 {
-  "name": "blackgate-blockchain",
+  "name": "zksync-hardhat-template",
   "description": "A template for ZKsync smart contracts development with Hardhat",
   "private": true,
   "author": "Matter Labs",
   "license": "MIT",
-  "repository": "https://github.com/matter-labs/blackgate-blockchain.git",
+  "repository": "https://github.com/matter-labs/zksync-hardhat-template.git",
   "scripts": {
-    "deploy": "hardhat deploy-zksync --script deploy.ts",
-    "interact": "hardhat deploy-zksync --script interact.ts",
+    "deploy": "hardhat run ./deploy/deploy.ts",
+    "deploy-erc20": "hardhat run ./scripts/deploy-erc20.ts",
+    "deploy-nft": "hardhat run ./scripts/deploy-nft.ts",
+    "interact": "hardhat run ./scripts/interact.ts",
     "compile": "hardhat compile",
     "clean": "hardhat clean",
     "test": "hardhat test --network hardhat"
@@ -25,14 +27,12 @@
     "chai": "^4.3.7",
     "dotenv": "^16.4.5",
     "ethers": "^6.13.4",
-    "hardhat": "^2.22.17",
+    "hardhat": "^2.22.18",
+    "hardhat-abi-exporter": "^2.10.1",
     "mocha": "^11.0.1",
     "ts-node": "^10.9.2",
     "typechain": "^8.3.2",
     "typescript": "^5.7.2",
     "zksync-ethers": "^6.15.3"
-  },
-  "dependencies": {
-    "hardhat-abi-exporter": "^2.10.1"
   }
 }

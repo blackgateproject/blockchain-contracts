@@ -20,19 +20,19 @@ export default async function () {
     // noVerify: true
   });
 
-  const contractArtifactName3 = "VerifiableCredentialManager";
-  // const VCMNGRCTRT = await deployContract(contractArtifactName3, [
-  //   DIDREGCNTRT.target,
-  // ], {
+  // const contractArtifactName3 = "VerifiableCredentialManager";
+  // // const VCMNGRCTRT = await deployContract(contractArtifactName3, [
+  // //   DIDREGCNTRT.target,
+  // // ], {
+  // //   // noVerify: true,
+  // // });
+  // const VCMNGRCTRT = await deployContract(contractArtifactName3, [], {
   //   // noVerify: true,
   // });
-  const VCMNGRCTRT = await deployContract(contractArtifactName3, [], {
-    // noVerify: true,
-  });
-  // console.log(
-  //   "RSAAccumulatorVerifier deployed to:",
-  //   RSAAccumulatorVerifierCNTRT.target
-  // );
+  // // console.log(
+  // //   "RSAAccumulatorVerifier deployed to:",
+  // //   RSAAccumulatorVerifierCNTRT.target
+  // // );
   console.log("EthereumDIDRegistry deployed to:", DIDREGCNTRT.target);
-  console.log("VerifiableCredentialManager deployed to:", VCMNGRCTRT.target);
+  // console.log("VerifiableCredentialManager deployed to:", VCMNGRCTRT.target);
 }

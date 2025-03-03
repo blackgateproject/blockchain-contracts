@@ -1,18 +1,13 @@
-// SPDX-License-Identifier: MIT
+/* SPDX-License-Identifier: MIT */
+
 pragma solidity ^0.8.6;
 
 contract EthereumDIDRegistry {
-    // Mapping to store the owner of the DID
     mapping(address => address) public owners;
-    // Mapping to store delegates for each DID
     mapping(address => mapping(bytes32 => mapping(address => uint)))
         public delegates;
-    // Tracking when the DID was changed
     mapping(address => uint) public changed;
-    // Nonce to prevent replay attacks
     mapping(address => uint) public nonce;
-    // Mapping to store the IPFS CID associated with the DID
-    mapping(address => string) public didDocuments;
 
     modifier onlyOwner(address identity, address actor) {
         require(actor == identityOwner(identity), "bad_actor");
@@ -38,12 +33,6 @@ contract EthereumDIDRegistry {
         bytes32 name,
         bytes value,
         uint validTo,
-        uint previousChange
-    );
-
-    event DIDDocumentUpdated(
-        address indexed identity,
-        string ipfsCID,
         uint previousChange
     );
 
@@ -233,54 +222,6 @@ contract EthereumDIDRegistry {
         );
     }
 
-    // Function to update the DID Document (IPFS CID)
-    function updateDIDDocument(
-        address identity,
-        address actor,
-        string memory ipfsCID
-    ) internal onlyOwner(identity, actor) {
-        didDocuments[identity] = ipfsCID;
-        emit DIDDocumentUpdated(identity, ipfsCID, changed[identity]);
-        changed[identity] = block.number;
-    }
-
-    function updateDIDDocument(address identity, string memory ipfsCID) public {
-        updateDIDDocument(identity, msg.sender, ipfsCID);
-    }
-
-    function updateDIDDocumentSigned(
-        address identity,
-        uint8 sigV,
-        bytes32 sigR,
-        bytes32 sigS,
-        string memory ipfsCID
-    ) public {
-        bytes32 hash = keccak256(
-            abi.encodePacked(
-                bytes1(0x19),
-                bytes1(0),
-                this,
-                nonce[identityOwner(identity)],
-                identity,
-                "updateDIDDocument",
-                ipfsCID
-            )
-        );
-        updateDIDDocument(
-            identity,
-            checkSignature(identity, sigV, sigR, sigS, hash),
-            ipfsCID
-        );
-    }
-
-    // Function to get the IPFS CID of a DID Document
-    function getDIDDocument(
-        address identity
-    ) public view returns (string memory) {
-        return didDocuments[identity];
-    }
-
-    // Function to set attributes (just like original, but we could include IPFS-related metadata)
     function setAttribute(
         address identity,
         address actor,

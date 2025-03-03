@@ -22,7 +22,8 @@ const config: HardhatUserConfig = {
     spacing: 2,
     pretty: true,
   },
-  defaultNetwork: "dockerizedNode",
+  // defaultNetwork: "dockerizedNode",
+  defaultNetwork: "zkSyncSepoliaTestnet",
   networks: {
     zkSyncSepoliaTestnet: {
       url: "https://sepolia.era.zksync.dev",
