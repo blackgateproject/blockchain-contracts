@@ -18,6 +18,12 @@ This project was scaffolded with [zksync-cli](https://github.com/matter-labs/zks
 
 Note: Both `npm run deploy` and `npm run interact` are set in the `package.json`. You can also run your files directly, for example: `npx hardhat deploy-zksync --script deploy.ts`
 
+#### Run this command to compile + deploy
+
+`npm run clean; npm run compile; npm run deploy`
+
+To change the deployment network or the script to execute, modify the command strings in package.json. If changing the deployment network make sure to modify the default network in `hardhat.config.ts` as well.
+
 ### Environment Settings
 
 To keep private keys safe, this project pulls in environment variables from `.env` files. Primarily, it fetches the wallet's private key.
