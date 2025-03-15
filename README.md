@@ -1,3 +1,17 @@
+# Project Deployments
+
+NOTE:: Only redeploy these contracts if a private instance of blackgate is required
+
+- Merkle
+
+  - `"address":"0xb149E0BE34D539fa7351c132eb4001793042e333"`
+  - `"txHash":"0xd05a5fb4c362415bc4d809c69d8dae73304ee77c1965428f12e0eeb3da0de6ed"`
+
+- eth-did-registry
+
+  - `"address":"0x3FF832843fEDd567514a5605C35FCD10E86b0416"`
+  - `"txHash":"0xd9564c42a641b4d827b47eee8e615bc8f0219b8331a4f2e21f24b0f1dfc5952c"`
+
 # ZKsync Hardhat project template
 
 This project was scaffolded with [zksync-cli](https://github.com/matter-labs/zksync-cli).
