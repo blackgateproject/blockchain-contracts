@@ -4,26 +4,29 @@ pragma solidity ^0.8.0;
 contract Merkle {
     string public merkleRoot; // Stores the final hash as a string (without "0x")
 
-    event MerkleRootUpdated(string newRoot);
-
-    // event DebugHash(string step, bytes32 hash);
-    // event DebugStringHash(string step, string hashString);
+    // Updated event to include deviceId, vcHash, and fogNodePublicKey
+    event MerkleRootUpdated(
+        string newRoot,
+        string deviceId,
+        string vcHash,
+        string fogNodePublicKey
+    );
 
     /**
-     * @dev Stores a new Merkle root as a string.
+     * @dev Stores a new Merkle root as a string, along with deviceId, vcHash, and fogNodePublicKey.
      * @param root The new Merkle root (precomputed SHA-256 hash as string).
+     * @param deviceId The device ID.
+     * @param vcHash The VC hash.
+     * @param fogNodePublicKey The Fog Node Public Key.
      */
-    function storeMerkleRoot(string memory root) public {
+    function storeMerkleRoot(
+        string memory root,
+        string memory deviceId,
+        string memory vcHash,
+        string memory fogNodePublicKey
+    ) public {
         merkleRoot = root;
-        emit MerkleRootUpdated(root);
-    }
-
-    /**
-     * @dev Retrieves the latest Merkle root from storage.
-     * @return The latest Merkle root as a string.
-     */
-    function getMerkleRoot() public view returns (string memory) {
-        return merkleRoot;
+        emit MerkleRootUpdated(root, deviceId, vcHash, fogNodePublicKey);
     }
 
     /**
@@ -32,13 +35,11 @@ contract Merkle {
      * @param proof A 2D array of sibling hashes (string) and direction ("left"/"right").
      * @return True if the proof is valid, false otherwise.
      */
-    // function verifyProof(string memory leaf, string[2][] memory proof) public returns (bool) {
     function verifyProof(
         string memory leaf,
         string[2][] memory proof
     ) public view returns (bool) {
         string memory computedHash = leaf;
-        // emit DebugStringHash("Initial Leaf Hash", computedHash);
 
         for (uint256 i = 0; i < proof.length; i++) {
             string memory sibling = proof[i][0];
@@ -51,7 +52,6 @@ contract Merkle {
                 computedHash = toSha256Hash(
                     string(abi.encodePacked(computedHash, sibling))
                 );
-                // emit DebugStringHash("New Computed Hash (Right)", computedHash);
             } else if (
                 keccak256(abi.encodePacked(direction)) ==
                 keccak256(abi.encodePacked("left"))
@@ -59,14 +59,10 @@ contract Merkle {
                 computedHash = toSha256Hash(
                     string(abi.encodePacked(sibling, computedHash))
                 );
-                // emit DebugStringHash("New Computed Hash (Left)", computedHash);
             } else {
                 revert("Invalid direction: must be 'left' or 'right'");
             }
         }
-
-        // emit DebugStringHash("Final Computed Hash", computedHash);
-        // emit DebugStringHash("Stored Merkle Root", merkleRoot);
 
         return
             keccak256(abi.encodePacked(computedHash)) ==
